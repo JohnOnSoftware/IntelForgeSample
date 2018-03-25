@@ -42,57 +42,57 @@ app.use('/api', api);
 var server = require('http').Server(app); 
 
 //// Step 1, Uncomment the socketio server creation code.
-// //subscribe socket 
-// var socketio = require('socket.io')(server);  
-// socketio.on('connection', function(socket){
-//     console.log('socket on server side is connected');
-// }); 
+//subscribe socket 
+var socketio = require('socket.io')(server);  
+socketio.on('connection', function(socket){
+    console.log('socket on server side is connected');
+}); 
 //// Step 1, Uncomment the socketio server creation code.
 
 
 
 
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
-// //subscribe mqtt
-// var mqtt = require('mqtt');
-// var mqttclient  = mqtt.connect('mqtt://test.mosquitto.org:1883');
-// mqttclient.on('connect', function () {
+//subscribe mqtt
+var mqtt = require('mqtt');
+var mqttclient  = mqtt.connect('mqtt://test.mosquitto.org:1883');
+mqttclient.on('connect', function () {
 
-//     console.log('mqtt on server side is connected');
+    console.log('mqtt on server side is connected');
 
-//     //subscribe a topic of mqtt
-//     mqttclient.subscribe(MQTT_TOPIC_TEMPERATURE,function(err,granted){
-//         console.log(granted);
-//         console.log(err);
+    //subscribe a topic of mqtt
+    mqttclient.subscribe(MQTT_TOPIC_TEMPERATURE,function(err,granted){
+        console.log(granted);
+        console.log(err);
         
-//         mqttclient.on('message', function (topic, message) {
-//             // message is Buffer
-//             var iotdata = message.toString();
-//             console.log('Intel temperature data: ' + iotdata)
+        mqttclient.on('message', function (topic, message) {
+            // message is Buffer
+            var iotdata = message.toString();
+            console.log('Intel temperature data: ' + iotdata)
 
-//             //broadcast the IoT data to socket
-//             socketio.emit(SOCKET_TOPIC_TEMPERATURE , iotdata); 
-//             //mqttclient.end()
-//           }) 
-//      }); 
+            //broadcast the IoT data to socket
+            socketio.emit(SOCKET_TOPIC_TEMPERATURE , iotdata); 
+            //mqttclient.end()
+          }) 
+     }); 
 
 
-//     //subscribe a topic of  humidity
-//     mqttclient.subscribe(MQTT_TOPIC_HUMIDITY,function(err,granted){
-//         console.log(granted);
-//         console.log(err);
+    //subscribe a topic of  humidity
+    mqttclient.subscribe(MQTT_TOPIC_HUMIDITY,function(err,granted){
+        console.log(granted);
+        console.log(err);
         
-//         mqttclient.on('message', function (topic, message) {
-//             // message is Buffer
-//             var iotdata = message.toString();
-//             console.log('Intel humidity data: ' + iotdata)
+        mqttclient.on('message', function (topic, message) {
+            // message is Buffer
+            var iotdata = message.toString();
+            console.log('Intel humidity data: ' + iotdata)
 
-//             //broadcast the IoT data to socket
-//             socketio.emit(SOCKET_TOPIC_HUMIDITY , iotdata); 
-//             //mqttclient.end()
-//           }) 
-//      });      
-// })  
+            //broadcast the IoT data to socket
+            socketio.emit(SOCKET_TOPIC_HUMIDITY , iotdata); 
+            //mqttclient.end()
+          }) 
+     });      
+})  
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
 
 
