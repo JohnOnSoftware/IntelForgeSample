@@ -11,6 +11,7 @@ var _humidityTimeSeries;
 Viewing.ClassroomTrainning.Extension = function( viewer, option ){
     Autodesk.Viewing.Extension.call( this, viewer, option );
     _viewer = viewer;
+    _self = this;
 };
 
 
@@ -18,8 +19,43 @@ Viewing.ClassroomTrainning.Extension.prototype = Object.create(Autodesk.Viewing.
 Viewing.ClassroomTrainning.Extension.prototype.constructor = Viewing.ClassroomTrainning.Extension;
 
 
+Viewing.ClassroomTrainning.Extension.prototype.onSelectionChanged = function(event){
+    var infoToIot = {
+        "name": "",
+        "dbid": ""
+    };
+    
+    if( curSelection = event.selections.length === 0){
+        alert('clear the selection');
+
+        _self.socketio.emit('element select', JSON.stringify(infoToIot) );
+    }
+    else{
+        infoToIot.dbid = event.selections[0].dbIdArray[0];
+        infoToIot.name = event.selections[0].model;
+        alert('current element is: ' + infoToIot.dbid);
+        _self.socketio.emit('element select', JSON.stringify(infoToIot) );
+    }
+};
+
 Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
- 
+
+    //replace with your own website
+    const baseurl = 'http://localhost:3000';
+    _self.socketio = io.connect(baseurl);
+
+    //replace with your suitable topic names 
+    const SOCKET_TOPIC_TEMPERATURE       = 'Intel-Forge-Temperature';
+    const SOCKET_TOPIC_HUMIDITY          = 'Intel-Forge-Humidity';
+    
+    //replace with your test id
+    var testdbid = 4808;
+
+
+    // Add selection changed event
+    _viewer.addEventListener(Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT, _self.onSelectionChanged);
+
+
     //// Step 3, Uncomment the code to add charts and timeline
     /////////////////////////////////////////////////////////////////////////
     /// create google charts for Temperature and Humidity
@@ -60,16 +96,6 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
 
     //////////////////////////////////////////////////////////////////////////////////
     /// get iot data from socket connection
-    //replace with your own website
-    const baseurl = 'http://localhost:3000';
-    const socketio = io.connect(baseurl);
-
-    //replace with your suitable topic names 
-    const SOCKET_TOPIC_TEMPERATURE       = 'Intel-Forge-Temperature';
-    const SOCKET_TOPIC_HUMIDITY          = 'Intel-Forge-Humidity';
-    
-    //replace with your test id
-    var testdbid = 4808;
 
 
     //// Step 4, Uncomment the code to add event to update the data
