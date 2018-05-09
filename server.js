@@ -34,7 +34,7 @@ const  SOCKET_TOPIC_HUMIDITY = 'Intel-Forge-Humidity';
 var host = 'mqtt://mqtt-cn-v0h0li21z02.mqtt.aliyuncs.com:1883';
 var username ='LTAIVHzsag9rgqrx';
 var password='TK8E3wYJCv+WItWySVacYvwXyME='; 
-var clientId=groupId+'@@@AutodeskForgeDevice';//GroupId@@@DeviceId
+var clientId='GID_Autodesk_Forge@@@AutodeskForgeDevice';//GroupId@@@DeviceId
 var topic = 'adsk_forge_iot';
 
 
@@ -55,6 +55,15 @@ var server = require('http').Server(app);
 var socketio = require('socket.io')(server);  
 socketio.on('connection', function(socket){
     console.log('socket on server side is connected');
+    socket.on('element select', function(msg){
+        console.log('message: ' + msg);
+      });
+
+      socket.on('disconnect', function(){
+        console.log('user disconnected');
+      });
+        
+
 }); 
 //// Step 1, Uncomment the socketio server creation code.
 
@@ -65,7 +74,7 @@ socketio.on('connection', function(socket){
 //subscribe mqtt
 var mqtt = require('mqtt');
 var options = {
-    port: port,
+    // port: port,
     clientId: clientId,
     username: username,
     password: password,
