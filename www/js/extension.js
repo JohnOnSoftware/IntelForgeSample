@@ -26,14 +26,13 @@ Viewing.ClassroomTrainning.Extension.prototype.onSelectionChanged = function(eve
     };
     
     if( curSelection = event.selections.length === 0){
-        alert('clear the selection');
-
+        console.log('clear the selection');
         _self.socketio.emit('element select', JSON.stringify(infoToIot) );
     }
     else{
         infoToIot.dbid = event.selections[0].dbIdArray[0];
-        infoToIot.name = event.selections[0].model;
-        alert('current element is: ' + infoToIot.dbid);
+        infoToIot.name = "model";
+        console.log('current element is: ' + infoToIot.dbid);
         _self.socketio.emit('element select', JSON.stringify(infoToIot) );
     }
 };
@@ -45,8 +44,8 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     _self.socketio = io.connect(baseurl);
 
     //replace with your suitable topic names 
-    const SOCKET_TOPIC_TEMPERATURE       = 'Intel-Forge-Temperature';
-    const SOCKET_TOPIC_HUMIDITY          = 'Intel-Forge-Humidity';
+    // const SOCKET_TOPIC_TEMPERATURE       = 'Intel-Forge-Temperature';
+    const SOCKET_TOPIC_SENSORS          = 'Intel-Forge-Sensors';
     
     //replace with your test id
     var testdbid = 4808;
@@ -101,52 +100,83 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //// Step 4, Uncomment the code to add event to update the data
     //subscribe the socket data
     $("#startwebsocket").click(function (res) {
-        socketio.on(SOCKET_TOPIC_TEMPERATURE, function (msg) {
-            console.log("Temperature Data from Intel: " + msg);
+        // _self.socketio.on(SOCKET_TOPIC_TEMPERATURE, function (msg) {
+        //     console.log("Temperature Data from Intel: " + msg);
 
+        //     var msgJson = JSON.parse(msg);
+        //     if (msgJson.sensor_id == 'temperature') {
+        //         // set the temperature data to google chart
+        //         _data.setValue(0, 1, msgJson.value);
+        //         _googleChart.draw(_data, _options);
+
+        //         // set the temperature data to smoothie timeline
+        //         _temperatureTimeSeries.append(new Date().getTime(), msgJson.value);
+
+        //         // use the temperature data to control the color of viewer element
+        //         if (msgJson.temperature < 20) {
+        //             _viewer.setThemingColor(
+        //                 msgJson.dbid,
+        //                 new THREE.Vector4(0, 1, 1, 1)
+        //             );
+        //         }
+        //         else if (msgJson.temperature > 20 && msgJson.temperature < 30) {
+        //             _viewer.setThemingColor(
+        //                 testdbid,
+        //                 new THREE.Vector4(0, 0.5, 1, 1)
+        //             );
+        //         }
+        //         else {
+        //             _viewer.setThemingColor(
+        //                 testdbid,
+        //                 new THREE.Vector4(1, 0, 0, 1)
+        //             );
+        //         }
+        //     }
+
+        // });
+
+        _self.socketio.on(SOCKET_TOPIC_SENSORS, function (msg) {
+            console.log("Sensor Data from Intel: " + msg);
             var msgJson = JSON.parse(msg);
-            if (msgJson.sensor_id == 'temperature') {
-                // set the temperature data to google chart
-                _data.setValue(0, 1, msgJson.value);
-                _googleChart.draw(_data, _options);
+            
+            // set the temperature data 
+            _data.setValue(0, 1, msgJson.temperature);
+            _googleChart.draw(_data, _options);
+            _temperatureTimeSeries.append(new Date().getTime(), msgJson.temperature);
+            
+            // set the humidity data 
+            _data.setValue(1, 1, msgJson.humidity);
+            _googleChart.draw(_data, _options);
+            _humidityTimeSeries.append(new Date().getTime(), msgJson.humidity);
 
-                // set the temperature data to smoothie timeline
-                _temperatureTimeSeries.append(new Date().getTime(), msgJson.value);
+            if( msgJson.dbid === "" )
+                return;
 
-                // use the temperature data to control the color of viewer element
-                if (msgJson.value < 20) {
-                    _viewer.setThemingColor(
-                        testdbid,
-                        new THREE.Vector4(0, 1, 1, 1)
-                    );
-                }
-                else if (msgJson.value > 20 && msgJson.value < 30) {
-                    _viewer.setThemingColor(
-                        testdbid,
-                        new THREE.Vector4(0, 0.5, 1, 1)
-                    );
-                }
-                else {
-                    _viewer.setThemingColor(
-                        testdbid,
-                        new THREE.Vector4(1, 0, 0, 1)
-                    );
-                }
-            }
+            // use the temperature data to control the color of viewer element
+            _viewer.setThemingColor(
+                msgJson.dbid,
+                new THREE.Vector4(msgJson.color/100.0, msgJson.color/100.0, msgJson.color/100.0, 1)
+            );
 
-        });
 
-        socketio.on(SOCKET_TOPIC_HUMIDITY, function (msg) {
-            console.log("Humidity Data from Intel: " + msg);
-            var msgJson = JSON.parse(msg);
-            if (msgJson.sensor_id == 'humidity') {
-                // set the temperature data to google chart
-                _data.setValue(1, 1, msgJson.value);
-                _googleChart.draw(_data, _options);
-
-                // set the temperature data to smoothie timeline
-                _humidityTimeSeries.append(new Date().getTime(), msgJson.value);
-            }
+            // if (msgJson.temperature < 20) {
+            //     _viewer.setThemingColor(
+            //         msgJson.dbid,
+            //         new THREE.Vector4(0, 1, 1, 1)
+            //     );
+            // }
+            // else if (msgJson.temperature > 20 && msgJson.temperature < 30) {
+            //     _viewer.setThemingColor(
+            //         msgJson.dbid,
+            //         new THREE.Vector4(0, 0.5, 1, 1)
+            //     );
+            // }
+            // else {
+            //     _viewer.setThemingColor(
+            //         msgJson.dbid,
+            //         new THREE.Vector4(1, 0, 0, 1)
+            //     );
+            // }
         });
     });
     //// Step 4, Uncomment the code to add event to update the data
@@ -155,8 +185,8 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //// Step 5: Uncomment the code to remove the listeners
     //unsubscribe the socket data 
     $("#endwebsocket").click(function (res) {
-        socketio.removeAllListeners(SOCKET_TOPIC_TEMPERATURE);
-        socketio.removeAllListeners(SOCKET_TOPIC_HUMIDITY);
+        // _self.socketio.removeAllListeners(SOCKET_TOPIC_TEMPERATURE);
+        _self.socketio.removeAllListeners(SOCKET_TOPIC_SENSORS);
         
     });
     // //// Step 5: Uncomment the code to remove the listeners

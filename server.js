@@ -23,19 +23,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 ///////////////////////////////////////////////////////////
 //replace with your suitable topic names 
-const  MQTT_TOPIC_TEMPERATURE = 'sensors/temperature/data';
-const  MQTT_TOPIC_HUMIDITY = 'sensors/humidity/data';
+const  MQTT_TOPIC_CONTROL = 'user98/control/data';
+const  MQTT_TOPIC_SENSORS = 'user98/sensors/data';
 
-const  SOCKET_TOPIC_TEMPERATURE = 'Intel-Forge-Temperature';
-const  SOCKET_TOPIC_HUMIDITY = 'Intel-Forge-Humidity';
+// const  SOCKET_TOPIC_TEMPERATURE = 'Intel-Forge-Temperature';
+const  SOCKET_TOPIC_SENSORS = 'Intel-Forge-Sensors';
 
-// Ali cloud MQ Host
-// var host = 'q.emqtt.com:1883';
-var host = 'mqtt://mqtt-cn-v0h0li21z02.mqtt.aliyuncs.com:1883';
-var username ='LTAIVHzsag9rgqrx';
-var password='TK8E3wYJCv+WItWySVacYvwXyME='; 
-var clientId='GID_Autodesk_Forge@@@AutodeskForgeDevice';//GroupId@@@DeviceId
-var topic = 'adsk_forge_iot';
+var host = 'mqtt://test.mosquitto.org';
 
 
 //import neccessary libraries 
@@ -51,16 +45,26 @@ app.use('/api', api);
 var server = require('http').Server(app); 
 
 //// Step 1, Uncomment the socketio server creation code.
-//subscribe socket 
+//// subscribe socket and publish the message to MQTT topic when received
 var socketio = require('socket.io')(server);  
 socketio.on('connection', function(socket){
-    console.log('socket on server side is connected');
+    console.log('user connected to the socket');
+    var timer;
     socket.on('element select', function(msg){
         console.log('message: ' + msg);
-      });
+
+        var timesRun = 0;
+        var interval = setInterval(()=>{
+            timesRun += 1;
+            if(timesRun === 4){
+                clearInterval(interval);
+            }
+            mqttclient.publish(MQTT_TOPIC_CONTROL,msg);
+        }, 1000);
+    });
 
       socket.on('disconnect', function(){
-        console.log('user disconnected');
+        console.log('user disconnected from the socket');
       });
         
 
@@ -69,55 +73,33 @@ socketio.on('connection', function(socket){
 
 
 
-
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
-//subscribe mqtt
 var mqtt = require('mqtt');
-var options = {
-    // port: port,
-    clientId: clientId,
-    username: username,
-    password: password,
-    };
-
-var mqttclient  = mqtt.connect(host, options);
+var mqttclient  = mqtt.connect(host);
 mqttclient.on('connect', function () {
-
     console.log('mqtt on server side is connected');
 
-    //subscribe a topic of mqtt MQTT_TOPIC_TEMPERATURE
-    mqttclient.subscribe(topic,function(err,granted){
-        console.log(granted);
-        console.log(err);
-        
-        mqttclient.on('message', function (topic, message) {
-            // message is Buffer
+    //subscribe mqtt topic
+    mqttclient.subscribe(MQTT_TOPIC_SENSORS);
+    mqttclient.subscribe(MQTT_TOPIC_CONTROL);
+
+    // handle the message
+    mqttclient.on('message', function (topic, message) {
+        // MQTT_TOPIC_CONTROL is just used to check if the message is pulished successfully
+        if (topic === MQTT_TOPIC_CONTROL) {
             var iotdata = message.toString();
-            console.log('Intel temperature data: ' + iotdata)
+            console.log('Intel data from topic: ' + topic + iotdata);
+        }
+        if (topic === MQTT_TOPIC_SENSORS) {
+            var iotdata = message.toString();
+            console.log('Intel data from topic: ' + topic + '\n' + iotdata)
 
             //broadcast the IoT data to socket
-            socketio.emit(SOCKET_TOPIC_TEMPERATURE , iotdata); 
+            socketio.emit(SOCKET_TOPIC_SENSORS, iotdata);
             //mqttclient.end()
-          }) 
-     }); 
-
-
-    //subscribe a topic of  humidity MQTT_TOPIC_HUMIDITY
-    mqttclient.subscribe(MQTT_TOPIC_HUMIDITY,function(err,granted){
-        console.log(granted);
-        console.log(err);
-        
-        mqttclient.on('message', function (topic, message) {
-            // message is Buffer
-            var iotdata = message.toString();
-            console.log('Intel humidity data: ' + iotdata)
-
-            //broadcast the IoT data to socket
-            socketio.emit(SOCKET_TOPIC_HUMIDITY , iotdata); 
-            //mqttclient.end()
-          }) 
-     });      
-})  
+        }
+    })   
+})
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
 
 
