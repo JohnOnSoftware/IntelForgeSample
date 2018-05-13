@@ -46,60 +46,58 @@ var server = require('http').Server(app);
 
 //// Step 1, Uncomment the socketio server creation code.
 //// subscribe socket and publish the message to MQTT topic when received
-var socketio = require('socket.io')(server);  
-socketio.on('connection', function(socket){
-    console.log('user connected to the socket');
-    var timer;
-    socket.on('element select', function(msg){
-        console.log('message: ' + msg);
+// var socketio = require('socket.io')(server);  
+// socketio.on('connection', function(socket){
+//     console.log('user connected to the socket');
+//     var timer;
+//     socket.on('element select', function(msg){
+//         console.log('message: ' + msg);
 
-        var timesRun = 0;
-        var interval = setInterval(()=>{
-            timesRun += 1;
-            if(timesRun === 4){
-                clearInterval(interval);
-            }
-            mqttclient.publish(MQTT_TOPIC_CONTROL,msg);
-        }, 1000);
-    });
+//         var timesRun = 0;
+//         var interval = setInterval(()=>{
+//             timesRun += 1;
+//             if(timesRun === 4){
+//                 clearInterval(interval);
+//             }
+//             mqttclient.publish(MQTT_TOPIC_CONTROL,msg);            
+//         }, 1000);
+//     });
 
-      socket.on('disconnect', function(){
-        console.log('user disconnected from the socket');
-      });
-        
-
-}); 
+//       socket.on('disconnect', function(){
+//         console.log('user disconnected from the socket');
+//       });
+// })
 //// Step 1, Uncomment the socketio server creation code.
 
 
 
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
-var mqtt = require('mqtt');
-var mqttclient  = mqtt.connect(host);
-mqttclient.on('connect', function () {
-    console.log('mqtt on server side is connected');
+// var mqtt = require('mqtt');
+// var mqttclient  = mqtt.connect(host);
+// mqttclient.on('connect', function () {
+//     console.log('mqtt on server side is connected');
 
-    //subscribe mqtt topic
-    mqttclient.subscribe(MQTT_TOPIC_SENSORS);
-    mqttclient.subscribe(MQTT_TOPIC_CONTROL);
+//     //subscribe mqtt topic
+//     mqttclient.subscribe(MQTT_TOPIC_SENSORS);
+//     mqttclient.subscribe(MQTT_TOPIC_CONTROL);
 
-    // handle the message
-    mqttclient.on('message', function (topic, message) {
-        // MQTT_TOPIC_CONTROL is just used to check if the message is pulished successfully
-        if (topic === MQTT_TOPIC_CONTROL) {
-            var iotdata = message.toString();
-            console.log('Intel data from topic: ' + topic + iotdata);
-        }
-        if (topic === MQTT_TOPIC_SENSORS) {
-            var iotdata = message.toString();
-            console.log('Intel data from topic: ' + topic + '\n' + iotdata)
+//     // handle the message
+//     mqttclient.on('message', function (topic, message) {
+//         // MQTT_TOPIC_CONTROL is just used to check if the message is pulished successfully
+//         if (topic === MQTT_TOPIC_CONTROL) {
+//             var iotdata = message.toString();
+//             console.log('Intel data from topic: ' + topic + iotdata);
+//         }
+//         if (topic === MQTT_TOPIC_SENSORS) {
+//             var iotdata = message.toString();
+//             console.log('Intel data from topic: ' + topic + '\n' + iotdata)
 
-            //broadcast the IoT data to socket
-            socketio.emit(SOCKET_TOPIC_SENSORS, iotdata);
-            //mqttclient.end()
-        }
-    })   
-})
+//             //broadcast the IoT data to socket
+//             socketio.emit(SOCKET_TOPIC_SENSORS, iotdata);
+//             //mqttclient.end()
+//         }
+//     })   
+// })
 //// Stpe 2, Uncomment the mqtt subscribe and emit message to socketio
 
 
