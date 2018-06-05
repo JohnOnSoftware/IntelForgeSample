@@ -8,6 +8,9 @@ var _googleChart;
 var _temperatureTimeSeries;
 var _humidityTimeSeries;
 
+var _normalTemperature = false;
+var _sensorElement = '2210'; // please change to your element in the viewer.
+
 Viewing.ClassroomTrainning.Extension = function( viewer, option ){
     Autodesk.Viewing.Extension.call( this, viewer, option );
     _viewer = viewer;
@@ -48,9 +51,9 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     
 
 
-    //// Step 3, Uncomment the code to add charts and timeline
-    /////////////////////////////////////////////////////////////////////////
-    /// create google charts for Temperature and Humidity
+    // // Step 3, Uncomment the code to add charts and timeline
+    // ///////////////////////////////////////////////////////////////////////
+    // /// create google charts for Temperature and Humidity
     // google.charts.load('current', { 'packages': ['gauge'] });
     // google.charts.setOnLoadCallback(drawChart);
     // function drawChart() {
@@ -81,7 +84,7 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     // var humidityChart    = new SmoothieChart();
     // humidityChart.addTimeSeries(_humidityTimeSeries, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 1 });
     // humidityChart.streamTo(document.getElementById("chart2"), 1000);
-    //// Step 3, Uncomment the code to add charts and timeline
+    // // Step 3, Uncomment the code to add charts and timeline
 
 
 
@@ -89,8 +92,8 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //////////////////////////////////////////////////////////////////////////////////
     /// get iot data from socket connection
 
-    //// Step 4, Uncomment the code to add event to update the data
-    //subscribe the socket data
+    // // Step 4, Uncomment the code to add event to update the data
+    // // subscribe the socket data
     // $("#startwebsocket").click(function (res) {
     //     //Add selection changed event
     //     _viewer.addEventListener(Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT, _self.onSelectionChanged);
@@ -111,26 +114,33 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //         if( msgJson.dbid === "" )
     //             return;
 
-    //         // use the temperature data to control the color of viewer element
-    //         _viewer.setThemingColor(
-    //             msgJson.dbid,
-    //             new THREE.Vector4(msgJson.color/100.0, msgJson.color/100.0, msgJson.color/100.0, 1)
-    //         );
-
-    //         var pp = _viewer.getPropertyPanel();
-    //         pp.addProperty("color", msgJson.color, "Iot");
+    //         // mark it red when the temperature of roof is higher than 35 degree.
+    //         if( _normalTemperature && msgJson.temperature > 35 )    {
+    //             _viewer.setThemingColor(
+    //                 _sensorElement,
+    //                 new THREE.Vector4(1, 0, 0, 1)
+    //             );
+    //             _normalTemperature = false;
+    //         }
+    //         if( !_normalTemperature && msgJson.temperature < 35){
+    //             _viewer.setThemingColor(
+    //                 _sensorElement,
+    //                 new THREE.Vector4(0, 1, 0, 1)
+    //             );
+    //             _normalTemperature = true;
+    //         }
     //     });
     // });
-    //// Step 4, Uncomment the code to add event to update the data
+    // // Step 4, Uncomment the code to add event to update the data
 
 
-    //// Step 5: Uncomment the code to remove the listeners
-    //// unsubscribe the socket data 
+    // // Step 5: Uncomment the code to remove the listeners
+    // // unsubscribe the socket data 
     // $("#endwebsocket").click(function (res) {
     //     _self.socketio.removeAllListeners(SOCKET_TOPIC_SENSORS);
     //     _viewer.removeEventListener(Autodesk.Viewing.AGGREGATE_SELECTION_CHANGED_EVENT);     
     // });
-    //// Step 5: Uncomment the code to remove the listeners
+    // // Step 5: Uncomment the code to remove the listeners
 
 
     console.log('My Extension is loaded');
