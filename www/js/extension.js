@@ -111,9 +111,6 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //         _googleChart.draw(_data, _options);
     //         _humidityTimeSeries.append(new Date().getTime(), msgJson.humidity);
 
-    //         if( msgJson.dbid === "" )
-    //             return;
-
     //         // mark it red when the temperature of roof is higher than 35 degree.
     //         if( _normalTemperature && msgJson.temperature > 35 )    {
     //             _viewer.setThemingColor(
@@ -129,6 +126,9 @@ Viewing.ClassroomTrainning.Extension.prototype.load  = ()=>{
     //             );
     //             _normalTemperature = true;
     //         }
+    //         if( msgJson.dbid === "" )
+    //             return;
+
     //     });
     // });
     // // Step 4, Uncomment the code to add event to update the data
